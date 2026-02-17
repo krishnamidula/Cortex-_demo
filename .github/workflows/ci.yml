@@ -19,6 +19,7 @@ jobs:
           exit 1
 
       - name: Send logs to Elastic
+        if: always()
         uses: elastic/github-logs-to-elastic@v1
         with:
           elastic-cloud-id: ${{ secrets.ELASTIC_CLOUD_ID }}
