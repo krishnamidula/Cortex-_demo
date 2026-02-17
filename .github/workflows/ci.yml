@@ -21,7 +21,7 @@ jobs:
       - name: Send logs to Elastic
         if: always()
         run: |
-          curl -X POST "$ELASTIC_URL/ci-logs/_doc" \
+          curl -X POST "$ELASTIC_URL/api/v1/index/ci-logs" \
             -H "Authorization: ApiKey $ELASTIC_API_KEY" \
             -H "Content-Type: application/json" \
             -d '{
