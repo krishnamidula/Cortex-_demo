@@ -20,7 +20,16 @@ jobs:
 
       - name: Send logs to Elastic
         if: always()
-        uses: elastic/github-logs-to-elastic@v1
-        with:
-          elastic-cloud-id: ${{ secrets.ELASTIC_CLOUD_ID }}
-          elastic-api-key: ${{ secrets.ELASTIC_API_KEY }}
+        run: |
+          curl -X POST "$ELASTIC_URL/ci-logs/_doc" \
+            -H "Authorization: ApiKey $ELASTIC_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "repo": "codesentinel-demo",
+              "status": "failed",
+              "message": "CI failure simulated",
+              "timestamp": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'"
+            }'
+        env:
+          ELASTIC_URL: ${{ secrets.ELASTIC_URL }}
+          ELASTIC_API_KEY: ${{ secrets.ELASTIC_API_KEY }}
