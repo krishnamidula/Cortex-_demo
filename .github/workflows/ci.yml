@@ -1,0 +1,25 @@
+name: CodeSentinel CI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Simulate failure
+        run: |
+          echo "Simulating CI failure"
+          exit 1
+
+      - name: Send logs to Elastic
+        uses: elastic/github-logs-to-elastic@v1
+        with:
+          elastic-cloud-id: ${{ secrets.ELASTIC_CLOUD_ID }}
+          elastic-api-key: ${{ secrets.ELASTIC_API_KEY }}
