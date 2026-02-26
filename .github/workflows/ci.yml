@@ -13,13 +13,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Simulate build
+      - name: Simulate build failure
         run: |
           echo "Running build..."
-          echo "Build passed"
+          echo "Simulating failure..."
+          exit 1   # 👈 THIS MAKES THE JOB FAIL
 
-      - name: Send logs to Elastic
-        if: always()
+      - name: Send logs to Elastic (only on failure)
+        if: failure()
         run: |
           curl -X POST "${ELASTIC_URL}/ci-logs/_doc" \
             -H "Authorization: ApiKey ${ELASTIC_API_KEY}" \
@@ -27,8 +28,8 @@ jobs:
             -d '{
               "@timestamp": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'",
               "repo": "${{ github.repository }}",
-              "status": "success",
-              "message": "Build completed",
+              "status": "failed",
+              "message": "Build failed in CI",
               "branch": "${{ github.ref_name }}",
               "workflow": "${{ github.workflow }}",
               "job_name": "build",
