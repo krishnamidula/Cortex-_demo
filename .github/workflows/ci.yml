@@ -13,13 +13,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Simulate build failure
+      - name: Run Build
         run: |
-          echo "Running build..."
-          echo "Simulating failure..."
-          exit 1   # 👈 THIS MAKES THE JOB FAIL
+          echo "Running CI build..."
 
-      - name: Send logs to Elastic (only on failure)
+          if [ -f "fail.txt" ]; then
+            echo "Failure file detected!"
+            exit 1
+          else
+            echo "Build passed successfully!"
+          fi
+
+      - name: Send FAILED logs to Elastic
         if: failure()
         run: |
           curl -X POST "${ELASTIC_URL}/ci-logs/_doc" \
@@ -29,7 +34,7 @@ jobs:
               "@timestamp": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'",
               "repo": "${{ github.repository }}",
               "status": "failed",
-              "message": "Build failed in CI",
+              "message": "Build failed due to fail.txt trigger",
               "branch": "${{ github.ref_name }}",
               "workflow": "${{ github.workflow }}",
               "job_name": "build",
